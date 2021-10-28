@@ -38,6 +38,20 @@ h1 {
   background-color: #ACC7B4;
   width: 500px;
   height: 400px;
+  overflow: scroll;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 32px;
+}
+
+.item_divider {
+  width: 90%;
+  height: 1px;
+  background-color: #f1f1f1;
+  margin: auto;
 }
 
 .footer { 
