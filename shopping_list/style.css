@@ -85,3 +85,9 @@ h1 {
 .footer_btn i {
   color: #fff;
 }
+
+
+.item_delete i:hover {
+  color: red;
+  cursor: pointer;
+  }
