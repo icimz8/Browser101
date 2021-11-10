@@ -1,0 +1,66 @@
+@font-face {
+  font-family: 'DOSMyungjo';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_eight@1.0/DOSMyungjo.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  background-color: #000;
+  text-align: center;
+  font-family: 'DOSMyungjo', sans-serif;
+  font-size: 40px; 
+}
+.hidden {
+  display: none;
+}
+button {
+  font-size: 30px;
+  padding: 20px;
+  border: 5px solid #000;
+  border-radius: 10px;
+}
+
+.game-screen {
+  background: url(./img/background.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 1200px;
+  height: 700px;
+  margin: 100px auto;
+  border-radius: 10px;
+}
+ 
+.timeout{ 
+  background-color: #fff;
+  width: 200px;
+  margin: 0 auto;
+  border: 5px solid #000;
+  border-radius: 10px;
+}
+
+.start-button{
+  margin:  20px;
+  color: #fff;
+  background: rgb(58, 199, 175);  
+} 
+
+ 
+.result {
+  width: 500px;
+  padding: 10px;
+  margin: 300px auto;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  color: #fff;
+}
+
+.result button { 
+  display: block;
+  margin: 0 auto;
+  background: rgb(253, 182, 154);  
+}
+ 
+.carrot {
+  position: absolute;
+}
