@@ -27,7 +27,7 @@ button {
   cursor: pointer;
 }
 
-.game_field {
+.game-field {
   position: relative;
   background: url(./img/background.png);
   background-repeat: no-repeat;
@@ -46,20 +46,26 @@ button {
   border-radius: 10px;
 }
 
-.start_button{
+.start-button{
   margin:  20px;
   color: #fff;
   background: rgb(58, 199, 175);  
 } 
 
  
-.result {
+.game-over{
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%,-50%);
   width: 500px;
+  height: 300px;
   padding: 10px;
   margin: 300px auto;
   background: rgba(0, 0, 0, 0.5);
   border-radius: 10px;
   color: #fff;
+  z-index: 100;
 }
 
 .result button { 
