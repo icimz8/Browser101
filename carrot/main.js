@@ -1,94 +1,188 @@
-const start = document.querySelector('.start-button');
-const replay = document.querySelector('.replay');
-const gamefield = document.querySelector('.game-field');
-const fieldRect = gamefield.getBoundingClientRect();
-const items = document.querySelector('.items');
-const timer = document.querySelector('.timer');
-let downloadTimer;
-let timeleft = 8;
+'use strict';
+ const CARROT_SIZE =80;
+ const CARROT_COUNT = 5;
+ const BUG_COUNT = 5;
+ const GAME_DURATION_SEC = 5;
 
-function gameset() {
-  //벌레와 당근을 생성하고 field에 추가
-  createItem('carrot', 10, 'img/carrot.png');
-  createItem('bug', 8, 'img/bug.png');
-  updateTimer();
-   downloadTimer = setInterval(updateTimer, 1000);
-};
+ const field = document.querySelector('.game_field');
+ const fieldRect = field.getBoundingClientRect();
+ const gameBtn = document.querySelector('.game_button');
+ const gameTimer = document.querySelector('.game_timer');
+ const gameScore = document.querySelector('.game_score');
 
-function resetGame(){
-  gameset();
-}
-function createItem(className, count, imgPath) {
-  let id = 0;
-  for (i = 0; i < count; i++) {
-    const item = document.createElement('img');
-    item.setAttribute('class', className);
-    item.setAttribute('src', imgPath);
-    item.setAttribute('data-id', id);
-    id++;
-    item.getBoundingClientRect();
-    const x1 = Math.floor(Math.random() * (fieldRect.height / 2 - 80));
-    const y1 = Math.floor(Math.random() * (fieldRect.width - 80));
-    item.style.position = 'absolute';
-    item.style.top = 300 + x1 + "px";
-    item.style.left = y1 + "px";
-    items.appendChild(item);
+ const popUp = document.querySelector('.pop-up');
+ const popUpText = document.querySelector('.pop-up_message');
+ const popUpRefresh = document.querySelector('.pop-up_refresh');
 
-    item.addEventListener('click', harvestCarrot);
+ const carrotSound = new Audio('./sound/carrot_pull.mp3');
+ const bugSound = new Audio('./sound/bug_pull.mp3');
+ const winSound = new Audio('./sound/game_win.mp3');
+ const alertSound = new Audio('./sound/alert.wav');
+ const bgSound = new Audio('./sound/bg.mp3');
+
+ let started = false;
+ let score = 0;
+ let timer= undefined;
+
+field.addEventListener('click', onFieldClick);
+
+gameBtn.addEventListener('click', () => {
+  if (started) {
+    stopGame();
+  } else {
+    startGame();
   }
-};
+});
 
-function updateTimer() {
-  if (timeleft === 0) {
-    clearInterval(downloadTimer);
-    gameOver(0);
+popUpRefresh.addEventListener('click', ()=>{
+  startGame();
+  hidePopUP();
+})
+
+function startGame() {
+  started = true;
+  initGame();
+  showStopButton();
+  showTimerAndScore();
+  startGameTimer();
+  playSound(bgSound);
+}
+
+function stopGame() {
+  started = false;
+stopGameTimer();
+hideGameButton();
+showPopUpWithText('REPLAY ?');
+playSound(alertSound);
+stopSound(bgSound);
+
+}
+
+
+function finishGame(win) {
+  started =false;
+  hideGameButton();
+  if(win) {
+    playSound(winSound);
+  }else {
+    playSound(bugSound);
+  }
+  stopGameTimer();
+  stopSound(bgSound);
+  showPopUpWithText(win? 'YOU WON' : 'YOU LOST');
+}
+
+function showStopButton() {
+  const icon = gameBtn.querySelector('.fas');
+  icon.classList.add('fa-stop');
+  icon.classList.remove('fa-play');
+  gameBtn.style.visibility ='visible';
+}
+
+function hideGameButton() {
+  gameBtn.style.visibility ='hidden';
+}
+
+function showTimerAndScore() {
+  gameTimer.style.visibility = 'visible';
+  gameScore.style.visibility = 'visible';
+} 
+
+function startGameTimer() {
+    let remainingTimeSec = GAME_DURATION_SEC;
+    updateTimerText(remainingTimeSec);
+    timer = setInterval(()=> {
+      if(remainingTimeSec <= 0) {
+        clearInterval(timer);
+        finishGame(CARROT_COUNT === score);
+        return;
+      }
+      updateTimerText(--remainingTimeSec);
+    },1000);
+}
+
+function stopGameTimer(){
+  clearInterval(timer);
+}
+
+function showPopUpWithText(text){
+  popUpText.innerText = text;
+  popUp.classList.remove('pop-up--hide');
+}
+
+function hidePopUP(){
+  popUp.classList.add('pop-up--hide');
+}
+
+function updateTimerText(time) {
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;  
+  gameTimer.innerText = `${minutes}:${seconds}`;
+}
+
+
+ function initGame() {
+   score = 0;
+   //벌레와 당근을 생성한뒤 field 에 추가해줌
+   field.innerHTML = '';
+   gameScore.innerText = CARROT_COUNT;
+   console.log(fieldRect);
+   addItem('carrot', CARROT_COUNT, 'img/carrot.png');
+   addItem('bug', BUG_COUNT, 'img/bug.png');
+ }
+
+function onFieldClick(event) {
+  if(!started) {
     return;
   }
-  timeleft--;
-  timer.textContent = `0:${timeleft}`;
-  return;
-}
- 
-function gameOver(end) {
-  const gameover = document.querySelector('.game-over');
-  const result = gameover.querySelector('span');
-  if (end === 0) {
-    result.innerHTML = `YOU LOSE`;
-    gameover.classList.remove('hidden');
-  } else if (end === 1) {
-    result.innerHTML = `YOU WON`;
-    gameover.classList.remove('hidden');
-  };
-}
+  const target = event.target;
+  if(target.matches('.carrot')){
+    //당근!
+    target.remove();
+    score++;
+    updateScoreBoard();
+    playSound(carrotSound);
+    if (score === CARROT_COUNT){
+      finishGame(true);
+    }
 
-function harvestCarrot(event) {
-  const id = event.target.dataset.id;
-  const rest = document.querySelector('.the-rest');
-  let carrotleft = items.getElementsByClassName('carrot').length;
-
-
-  if (id && event.target.className === "carrot") {
-    const toBeDeleted = document.querySelector(`.carrot[data-id ="${id}"]`)
-    toBeDeleted.remove();
-    carrotleft--;
-    rest.innerHTML = carrotleft;
-  } else if (event.target.className === "bug") {
-    gameOver(0);
-    clearInterval(downloadTimer);
-  }
-  if (carrotleft == 0) {
-    gameOver(1);
-    clearInterval(downloadTimer);
+  } else if (target.matches('.bug')){
+    stopGameTimer();
+    finishGame(false);
   }
 }
+function playSound(sound){
+  sound.currentTime = 0;
+  sound.play();
+}
+function stopSound(sound){
+  sound.pause();
+}
 
+function updateScoreBoard(){
+  gameScore.innerText = CARROT_COUNT - score;
+}
 
+ function addItem (className, count, imgPath){
+  const x1 =0;
+  const y1 =0;
+  const x2 =fieldRect.width - CARROT_SIZE;
+  const y2 =fieldRect.height- CARROT_SIZE ;
+  for (let i=0 ; i < count ; i++) {
+    const item = document.createElement('img')
+    item.setAttribute('class', className);
+    item.setAttribute('src', imgPath);
+    item.style.position = 'absolute';
+    const x = randomNumber(x1, x2);
+    const y = randomNumber(y1, y2);
+    item.style.left =` ${x}px`
+    item.style.top =` ${y}px`
+    field.appendChild(item);
+  }
+ }
 
-window.addEventListener('load', () => {
-  start.addEventListener('click', gameset, {
-    once: true
-  });
-  replay.addEventListener('click', resetGame, {
-    once: true
-  });
-});
+function randomNumber(min, max){
+  return Math.random() * (max - min) + min;
+}
+
+ initGame();
